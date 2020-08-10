@@ -1531,8 +1531,7 @@ func (kl *Kubelet) generateAPIPodStatus(pod *v1.Pod, podStatus *kubecontainer.Po
 		if err != nil {
 			klog.V(4).InfoS("Cannot get host IPs", "err", err)
 		} else {
-			s.HostIP = hostIPs[0].String()
-			if kubecontainer.IsHostNetworkPod(pod) && s.PodIP == "" {
+			if kubecontainer.IsHostNetworkPod(pod) && (s.PodIP == "" || s.PodIP != hostIPs[0].String()) {
 				s.PodIP = hostIPs[0].String()
 				s.PodIPs = []v1.PodIP{{IP: s.PodIP}}
 				if utilfeature.DefaultFeatureGate.Enabled(features.IPv6DualStack) && len(hostIPs) == 2 {
