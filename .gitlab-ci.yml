@@ -1,6 +1,6 @@
 variables:
   GIT_SUBMODULE_STRATEGY: normal
-  KUBERNETES_VERSION: 1.17.17
+  KUBERNETES_VERSION: 1.19.8
 
 stages:
   - build
@@ -41,3 +41,4 @@ release:
       - _output/dockerized/bin/linux/amd64/kubelet
   only:
     - v1.17-vesdev
+    - v1.19-vesdev
