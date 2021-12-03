@@ -1,6 +1,7 @@
 variables:
   GIT_SUBMODULE_STRATEGY: normal
   KUBERNETES_VERSION: 1.21.7
+  KUBE_GIT_VERSION_FILE: version
 
 stages:
   - build
@@ -10,12 +11,12 @@ build:
   stage: build
   tags: [shell]
   script:
-  - echo KUBE_GIT_COMMIT=d66e553e8e34068ff9e81e079df367c7c1484809 > .dockerized-kube-version-defs
-  - echo KUBE_GIT_TREE_STATE=clean >> .dockerized-kube-version-defs
-  - echo KUBE_GIT_VERSION=1 >> .dockerized-kube-version-defs
-  - echo KUBE_GIT_MAJOR=21 >> .dockerized-kube-version-defs
-  - echo KUBE_GIT_MINOR=7 >> .dockerized-kube-version-defs
-  - cat .dockerized-kube-version-defs
+  - echo KUBE_GIT_COMMIT=d66e553e8e34068ff9e81e079df367c7c1484809 > version
+  - echo KUBE_GIT_TREE_STATE=clean >> version
+  - echo KUBE_GIT_VERSION=v1.21.7 >> version
+  - echo KUBE_GIT_MAJOR=1 >> version
+  - echo KUBE_GIT_MINOR=21 >> version
+  - cat version
 
   # build binaries
   - ./build/run.sh make kubelet | grep -v parse.go
