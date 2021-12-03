@@ -31,6 +31,10 @@
 #
 # If KUBE_GIT_VERSION_FILE, this function will load from that file instead of
 # querying git.
+
+set -xe
+
+
 kube::version::get_version_vars() {
   if [[ -n ${KUBE_GIT_VERSION_FILE-} ]]; then
     kube::version::load_version_vars "${KUBE_GIT_VERSION_FILE}"
