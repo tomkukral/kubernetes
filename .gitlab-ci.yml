@@ -1,6 +1,6 @@
 variables:
   GIT_SUBMODULE_STRATEGY: normal
-  KUBERNETES_VERSION: 1.17.17
+  KUBERNETES_VERSION: 1.21.7
 
 stages:
   - build
@@ -13,6 +13,13 @@ build:
     - ./build/run.sh make kubelet | grep -v parse.go
     - ./build/run.sh make kubectl | grep -v parse.go
     - tree _output
+
+    # check version of binaries
+    - ./_output/dockerized/bin/linux/amd64/kubelet --version
+    - ./_output/dockerized/bin/linux/amd64/kubectl version --client
+    - ./_output/dockerized/bin/linux/amd64/kubelet --version | grep "${KUBERNETES_VERSION}"
+    - ./_output/dockerized/bin/linux/amd64/kubectl version --client | grep "${KUBERNETES_VERSION}"
+
   cache:
     policy: push
     key: "$CI_COMMIT_SHA"
@@ -40,4 +47,4 @@ release:
       - _output/dockerized/bin/linux/amd64/kubectl
       - _output/dockerized/bin/linux/amd64/kubelet
   only:
-    - v1.17-vesdev
+    - /^.+-vesdev$/
