@@ -10,6 +10,7 @@ build:
   stage: build
   tags: [shell]
   script:
+    - git fetch --tags
     - ./build/run.sh make kubelet | grep -v parse.go
     - ./build/run.sh make kubectl | grep -v parse.go
     - tree _output
