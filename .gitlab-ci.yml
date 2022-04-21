@@ -5,11 +5,14 @@ variables:
 
 stages:
   - build
+  - vuln-scan
   - release
 
 build:
   stage: build
   tags: [shell]
+  before_script:
+    - docker system prune -f
   script:
   - echo KUBE_GIT_COMMIT=d66e553e8e34068ff9e81e079df367c7c1484809 > version
   - echo KUBE_GIT_TREE_STATE=clean >> version
@@ -19,6 +22,7 @@ build:
   - cat version
 
   # build binaries
+  - ./build/run.sh make clean
   - ./build/run.sh make kubelet | grep -v parse.go
   - ./build/run.sh make kubectl | grep -v parse.go
   - tree _output
@@ -57,3 +61,8 @@ release:
       - _output/dockerized/bin/linux/amd64/kubelet
   only:
     - /^.+-vesdev$/
+
+include:
+- project: volterra/security/security-config/cicd-includes
+  ref: main
+  file: whitesource/wss-golang.yml
