@@ -31,6 +31,10 @@
 #
 # If KUBE_GIT_VERSION_FILE, this function will load from that file instead of
 # querying git.
+
+set -xe
+
+
 kube::version::get_version_vars() {
   if [[ -n ${KUBE_GIT_VERSION_FILE-} ]]; then
     kube::version::load_version_vars "${KUBE_GIT_VERSION_FILE}"
@@ -66,7 +70,7 @@ kube::version::get_version_vars() {
     fi
 
     # Use git describe to find the version based on tags.
-    if [[ -n ${KUBE_GIT_VERSION-} ]] || KUBE_GIT_VERSION=$("${git[@]}" describe --tags --match='v*' --abbrev=14 "${KUBE_GIT_COMMIT}^{commit}" 2>/dev/null); then
+    if [[ -n ${KUBE_GIT_VERSION-} ]] || KUBE_GIT_VERSION=$("${git[@]}" describe --tags --match='v*' --abbrev=14 "${KUBE_GIT_COMMIT}^{commit}"); then
       # This translates the "git describe" to an actual semver.org
       # compatible semantic version that looks something like this:
       #   v1.1.0-alpha.0.6+84c76d1142ea4d
@@ -81,7 +85,7 @@ kube::version::get_version_vars() {
       if [[ "${DASHES_IN_VERSION}" == "---" ]] ; then
         # shellcheck disable=SC2001
         # We have distance to subversion (v1.1.0-subversion-1-gCommitHash)
-        KUBE_GIT_VERSION=$(echo "${KUBE_GIT_VERSION}" | sed "s/-\([0-9]\{1,\}\)-g\([0-9a-f]\{14\}\)$/.\1\+\2/")
+j       KUBE_GIT_VERSION=$(echo "${KUBE_GIT_VERSION}" | sed "s/-\([0-9]\{1,\}\)-g\([0-9a-f]\{14\}\)$/.\1\+\2/")
       elif [[ "${DASHES_IN_VERSION}" == "--" ]] ; then
         # shellcheck disable=SC2001
         # We have distance to base tag (v1.1.0-1-gCommitHash)
