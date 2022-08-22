@@ -487,8 +487,8 @@ github.com/vishvananda/netns v0.0.0-20200728191858-db3c7e526aae h1:4hwBBUfQCFe3C
 github.com/vishvananda/netns v0.0.0-20200728191858-db3c7e526aae/go.mod h1:DD4vA1DwXk04H54A1oHXtwZmA0grkVMdPxx/VGLCah0=
 github.com/vmware/govmomi v0.20.3 h1:gpw/0Ku+6RgF3jsi7fnCLmlcikBHfKBCUcu1qgc16OU=
 github.com/vmware/govmomi v0.20.3/go.mod h1:URlwyTFZX72RmxtxuaFL2Uj3fD1JTvZdx59bHWk6aFU=
-github.com/volterraedge/legacy-cloud-providers v0.0.0-20220822113515-ba602e355763 h1:ojBX7b27HBe4IQVYXEy5b075mf6124mQBDgfw38hWNQ=
-github.com/volterraedge/legacy-cloud-providers v0.0.0-20220822113515-ba602e355763/go.mod h1:lQTdb/bsiXHBhMYG/1y7yb4MBlgby5PEI1SxtTKMGzQ=
+github.com/volterraedge/legacy-cloud-providers v0.0.0-20220822152124-284747a4ee80 h1:41gdQm9kTE1kWg51ZgS5C0RiT9kMlXd4wQoy0skRcp8=
+github.com/volterraedge/legacy-cloud-providers v0.0.0-20220822152124-284747a4ee80/go.mod h1:lQTdb/bsiXHBhMYG/1y7yb4MBlgby5PEI1SxtTKMGzQ=
 github.com/xiang90/probing v0.0.0-20190116061207-43a291ad63a2 h1:eY9dn8+vbi4tKz5Qo6v2eYzo7kUS51QINcR5jNpbZS8=
 github.com/xiang90/probing v0.0.0-20190116061207-43a291ad63a2/go.mod h1:UETIi67q53MR2AWcXfiuqkDkRtnGDLqkBTpCHuJHxtU=
 github.com/xlab/treeprint v0.0.0-20181112141820-a009c3971eca h1:1CFlNzQhALwjS9mBAUkycX616GzgsuYUOCHA5+HSlXI=
