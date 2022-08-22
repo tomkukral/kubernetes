@@ -518,7 +518,7 @@ replace (
 	k8s.io/kube-scheduler => ./staging/src/k8s.io/kube-scheduler
 	k8s.io/kubectl => ./staging/src/k8s.io/kubectl
 	k8s.io/kubelet => ./staging/src/k8s.io/kubelet
-	k8s.io/legacy-cloud-providers => github.com/volterraedge/legacy-cloud-providers v0.0.0-20220822152124-284747a4ee80
+	k8s.io/legacy-cloud-providers => github.com/volterraedge/legacy-cloud-providers v0.0.0-20220822153023-5c64fca568e4
 	k8s.io/metrics => ./staging/src/k8s.io/metrics
 	k8s.io/mount-utils => ./staging/src/k8s.io/mount-utils
 	k8s.io/sample-apiserver => ./staging/src/k8s.io/sample-apiserver
