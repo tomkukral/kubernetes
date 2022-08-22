@@ -1,3 +1,4 @@
+//go:build !providerless
 // +build !providerless
 
 /*
@@ -22,6 +23,7 @@ import (
 	"fmt"
 	"io"
 	"io/ioutil"
+	"log"
 	"net/http"
 	"strings"
 	"sync"
@@ -69,6 +71,10 @@ import (
 
 	"sigs.k8s.io/yaml"
 )
+
+func init() {
+	log.Printf("DEBUG using patched cloud provider")
+}
 
 const (
 	// CloudProviderName is the value used for the --cloud-provider flag
