@@ -20,10 +20,8 @@ limitations under the License.
 package azure
 
 import (
-	"encoding/json"
 	"errors"
 	"fmt"
-	"log"
 	"regexp"
 	"sort"
 	"strconv"
