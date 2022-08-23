@@ -1,3 +1,4 @@
+//go:build !providerless
 // +build !providerless
 
 /*
@@ -155,7 +156,7 @@ func (plugin *azureDataDiskPlugin) GetVolumeLimits() (map[string]int64, error) {
 
 	instanceType, err := instances.InstanceType(context.TODO(), plugin.host.GetNodeName())
 	if err != nil {
-		klog.Errorf("Failed to get instance type from Azure cloud provider, nodeName: %s", plugin.host.GetNodeName())
+		klog.Errorf("Failed to get instance type from Azure cloud provider, nodeName: %s, error is: %v", plugin.host.GetNodeName(), err)
 		return volumeLimits, nil
 	}
 
