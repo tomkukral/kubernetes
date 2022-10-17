@@ -1,3 +1,4 @@
+//go:build !providerless
 // +build !providerless
 
 /*
@@ -22,6 +23,7 @@ import (
 	"net/http"
 	"regexp"
 	"strings"
+	"time"
 
 	"github.com/Azure/azure-sdk-for-go/services/compute/mgmt/2019-12-01/compute"
 	"github.com/Azure/azure-sdk-for-go/services/network/mgmt/2019-06-01/network"
@@ -57,14 +59,29 @@ var (
 // returns a new Backoff object steps = 1
 // This is to make sure that the requested command executes
 // at least once
-func (az *Cloud) RequestBackoff() (resourceRequestBackoff wait.Backoff) {
-	if az.CloudProviderBackoff {
-		return az.ResourceRequestBackoff
-	}
+func (az *Cloud) requestBackoff() (resourceRequestBackoff wait.Backoff) {
+	/*
+		if az.CloudProviderBackoff {
+			return az.ResourceRequestBackoff
+		}
+	*/
+
+	// use reasonable defaults
 	resourceRequestBackoff = wait.Backoff{
-		Steps: 1,
+		Duration: 20 * time.Second,
+		Factor:   1.5,
+		Jitter:   1.2,
+		Steps:    100,
+		Cap:      300 * time.Second,
 	}
 	return resourceRequestBackoff
+}
+
+func (az *Cloud) RequestBackoff() wait.Backoff {
+	b := az.requestBackoff()
+
+	klog.V(2).Infof("DEBUG using backoff %+v", b)
+	return b
 }
 
 // Event creates a event for the specified object.
@@ -103,7 +120,7 @@ func (az *Cloud) ListVirtualMachines(resourceGroup string) ([]compute.VirtualMac
 
 	allNodes, rerr := az.VirtualMachinesClient.List(ctx, resourceGroup)
 	if rerr != nil {
-		klog.Errorf("VirtualMachinesClient.List(%v) failure with err=%v", resourceGroup, rerr)
+		klog.Errorf("VirtualMachinesClient.List(%v) failure with err=%#v, throttled %T, retry after %s", resourceGroup, rerr, rerr.IsThrottled(), rerr.RetryAfter)
 		return nil, rerr.Error()
 	}
 	klog.V(2).Infof("VirtualMachinesClient.List(%v) success", resourceGroup)
