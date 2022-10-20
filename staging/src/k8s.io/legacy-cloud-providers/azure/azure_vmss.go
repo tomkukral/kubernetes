@@ -219,7 +219,7 @@ func (ss *scaleSet) getVmssVM(nodeName string, crt azcache.AzureCacheReadType) (
 func (ss *scaleSet) GetPowerStatusByNodeName(name string) (powerState string, err error) {
 	managedByAS, err := ss.isNodeManagedByAvailabilitySet(name, azcache.CacheReadTypeUnsafe)
 	if err != nil {
-		klog.Errorf("Failed to check isNodeManagedByAvailabilitySet: %v", err)
+		klog.Errorf("Failed to check isNodeManagedByAvailabilitySet in GetPowerStatusByNodeName: %v", err)
 		return "", err
 	}
 	if managedByAS {
@@ -251,7 +251,7 @@ func (ss *scaleSet) GetPowerStatusByNodeName(name string) (powerState string, er
 func (ss *scaleSet) GetProvisioningStateByNodeName(name string) (provisioningState string, err error) {
 	managedByAS, err := ss.isNodeManagedByAvailabilitySet(name, azcache.CacheReadTypeUnsafe)
 	if err != nil {
-		klog.Errorf("Failed to check isNodeManagedByAvailabilitySet: %v", err)
+		klog.Errorf("Failed to check isNodeManagedByAvailabilitySet in GetProvisionStateByNodeName: %v", err)
 		return "", err
 	}
 	if managedByAS {
@@ -336,7 +336,7 @@ func (ss *scaleSet) getVmssVMByInstanceID(resourceGroup, scaleSetName, instanceI
 func (ss *scaleSet) GetInstanceIDByNodeName(name string) (string, error) {
 	managedByAS, err := ss.isNodeManagedByAvailabilitySet(name, azcache.CacheReadTypeUnsafe)
 	if err != nil {
-		klog.Errorf("Failed to check isNodeManagedByAvailabilitySet: %v", err)
+		klog.Errorf("Failed to check isNodeManagedByAvailabilitySet in GetInstanceIDByNodeName: %v", err)
 		return "", err
 	}
 	if managedByAS {
@@ -410,7 +410,7 @@ func (ss *scaleSet) GetNodeNameByProviderID(providerID string) (types.NodeName, 
 func (ss *scaleSet) GetInstanceTypeByNodeName(name string) (string, error) {
 	managedByAS, err := ss.isNodeManagedByAvailabilitySet(name, azcache.CacheReadTypeUnsafe)
 	if err != nil {
-		klog.Errorf("Failed to check isNodeManagedByAvailabilitySet: %v", err)
+		klog.Errorf("Failed to check isNodeManagedByAvailabilitySet in GetInstanceTypeByNodeName: %v", err)
 		return "", err
 	}
 	if managedByAS {
@@ -435,7 +435,7 @@ func (ss *scaleSet) GetInstanceTypeByNodeName(name string) (string, error) {
 func (ss *scaleSet) GetZoneByNodeName(name string) (cloudprovider.Zone, error) {
 	managedByAS, err := ss.isNodeManagedByAvailabilitySet(name, azcache.CacheReadTypeUnsafe)
 	if err != nil {
-		klog.Errorf("Failed to check isNodeManagedByAvailabilitySet: %v", err)
+		klog.Errorf("Failed to check isNodeManagedByAvailabilitySet in GetZoneByNodeName: %v", err)
 		return cloudprovider.Zone{}, err
 	}
 	if managedByAS {
@@ -865,7 +865,7 @@ func extractResourceGroupByVMSSNicID(nicID string) (string, error) {
 func (ss *scaleSet) GetPrimaryInterface(nodeName string) (network.Interface, error) {
 	managedByAS, err := ss.isNodeManagedByAvailabilitySet(nodeName, azcache.CacheReadTypeDefault)
 	if err != nil {
-		klog.Errorf("Failed to check isNodeManagedByAvailabilitySet: %v", err)
+		klog.Errorf("Failed to check isNodeManagedByAvailabilitySet in GetPrimaryInterface: %v", err)
 		return network.Interface{}, err
 	}
 	if managedByAS {

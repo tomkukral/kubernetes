@@ -1,3 +1,4 @@
+//go:build !providerless
 // +build !providerless
 
 /*
@@ -22,6 +23,7 @@ import (
 	"net/http"
 	"regexp"
 	"strings"
+	"time"
 
 	"github.com/Azure/azure-sdk-for-go/services/compute/mgmt/2019-12-01/compute"
 	"github.com/Azure/azure-sdk-for-go/services/network/mgmt/2019-06-01/network"
@@ -57,14 +59,28 @@ var (
 // returns a new Backoff object steps = 1
 // This is to make sure that the requested command executes
 // at least once
-func (az *Cloud) RequestBackoff() (resourceRequestBackoff wait.Backoff) {
+// changed due to https://gitlab.com/volterra/support/technical/-/issues/7086
+func (az *Cloud) requestBackoff() (resourceRequestBackoff wait.Backoff) {
 	if az.CloudProviderBackoff {
 		return az.ResourceRequestBackoff
 	}
+
+	// use reasonable defaults
 	resourceRequestBackoff = wait.Backoff{
-		Steps: 1,
+		Duration: 20 * time.Second,
+		Factor:   1.5,
+		Jitter:   1.2,
+		Steps:    100,
+		Cap:      300 * time.Second,
 	}
 	return resourceRequestBackoff
+}
+
+func (az *Cloud) RequestBackoff() wait.Backoff {
+	b := az.requestBackoff()
+
+	klog.V(3).Infof("Using backoff %+v", b)
+	return b
 }
 
 // Event creates a event for the specified object.
@@ -87,7 +103,7 @@ func (az *Cloud) GetVirtualMachineWithRetry(name types.NodeName, crt azcache.Azu
 			klog.Errorf("GetVirtualMachineWithRetry(%s): backoff failure, will retry, err=%v", name, retryErr)
 			return false, nil
 		}
-		klog.V(2).Infof("GetVirtualMachineWithRetry(%s): backoff success", name)
+		klog.V(2).Infof("GetVirtualMachineWithRetry(%s): backoff success, got machine ID %s, name %s", name, *machine.ID, *machine.Name)
 		return true, nil
 	})
 	if err == wait.ErrWaitTimeout {
@@ -103,7 +119,16 @@ func (az *Cloud) ListVirtualMachines(resourceGroup string) ([]compute.VirtualMac
 
 	allNodes, rerr := az.VirtualMachinesClient.List(ctx, resourceGroup)
 	if rerr != nil {
-		klog.Errorf("VirtualMachinesClient.List(%v) failure with err=%v", resourceGroup, rerr)
+		waitDuration := time.Until(rerr.RetryAfter) + time.Second
+		klog.Errorf("VirtualMachinesClient.List(%v) failure with err=%#v, throttled %T, retry after %s, blocking for %s", resourceGroup, rerr, rerr.IsThrottled(), rerr.RetryAfter, waitDuration)
+
+		// block until retryafter to avoid load on azure API
+		select {
+		case <-ctx.Done():
+			return nil, ctx.Err()
+		case <-time.After(waitDuration):
+		}
+
 		return nil, rerr.Error()
 	}
 	klog.V(2).Infof("VirtualMachinesClient.List(%v) success", resourceGroup)

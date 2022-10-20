@@ -1,3 +1,4 @@
+//go:build !providerless
 // +build !providerless
 
 /*
@@ -275,8 +276,10 @@ func isInternalLoadBalancer(lb *network.LoadBalancer) bool {
 // SingleStack -v4 (pre v1.16) => BackendPool name == clusterName
 // SingleStack -v6 => BackendPool name == <clusterName>-IPv6 (all cluster bootstrap uses this name)
 // DualStack
-//	=> IPv4 BackendPool name == clusterName
-//  => IPv6 BackendPool name == <clusterName>-IPv6
+//
+//		=> IPv4 BackendPool name == clusterName
+//	 => IPv6 BackendPool name == <clusterName>-IPv6
+//
 // This means:
 // clusters moving from IPv4 to dualstack will require no changes
 // clusters moving from IPv6 to dualstack will require no changes as the IPv4 backend pool will created with <clusterName>
@@ -429,7 +432,7 @@ outer:
 
 var polyTable = crc32.MakeTable(crc32.Koopman)
 
-//MakeCRC32 : convert string to CRC32 format
+// MakeCRC32 : convert string to CRC32 format
 func MakeCRC32(str string) string {
 	crc := crc32.New(polyTable)
 	crc.Write([]byte(str))
@@ -453,6 +456,7 @@ func newAvailabilitySet(az *Cloud) VMSet {
 // It must return ("", cloudprovider.InstanceNotFound) if the instance does
 // not exist or is no longer running.
 func (as *availabilitySet) GetInstanceIDByNodeName(name string) (string, error) {
+	klog.V(3).Infof("GetInstanceIDByNodeName")
 	var machine compute.VirtualMachine
 	var err error
 
@@ -731,6 +735,7 @@ func (as *availabilitySet) GetVMSetNames(service *v1.Service, nodes []*v1.Node) 
 
 // GetPrimaryInterface gets machine primary network interface by node name.
 func (as *availabilitySet) GetPrimaryInterface(nodeName string) (network.Interface, error) {
+	klog.V(3).Infof("GetPrimaryInterface")
 	nic, _, err := as.getPrimaryInterfaceWithVMSet(nodeName, "")
 	return nic, err
 }
@@ -747,11 +752,12 @@ func extractResourceGroupByNicID(nicID string) (string, error) {
 
 // getPrimaryInterfaceWithVMSet gets machine primary network interface by node name and vmSet.
 func (as *availabilitySet) getPrimaryInterfaceWithVMSet(nodeName, vmSetName string) (network.Interface, string, error) {
+	klog.V(3).Infof("getPrimaryInterfaceWithVMSet")
 	var machine compute.VirtualMachine
 
 	machine, err := as.GetVirtualMachineWithRetry(types.NodeName(nodeName), azcache.CacheReadTypeDefault)
 	if err != nil {
-		klog.V(2).Infof("GetPrimaryInterface(%s, %s) abort backoff", nodeName, vmSetName)
+		klog.V(2).Infof("BackendPoolDeletedGetPrimaryInterface(%s, %s) abort backoff", nodeName, vmSetName)
 		return network.Interface{}, "", err
 	}
 
@@ -817,6 +823,7 @@ func (as *availabilitySet) getPrimaryInterfaceWithVMSet(nodeName, vmSetName stri
 func (as *availabilitySet) EnsureHostInPool(service *v1.Service, nodeName types.NodeName, backendPoolID string, vmSetName string, isInternal bool) (string, string, string, *compute.VirtualMachineScaleSetVM, error) {
 	vmName := mapNodeNameToVMName(nodeName)
 	serviceName := getServiceName(service)
+	klog.V(3).Infof("EnsureHostInPool")
 	nic, _, err := as.getPrimaryInterfaceWithVMSet(vmName, vmSetName)
 	if err != nil {
 		if err == errNotInVMSet {
@@ -985,6 +992,7 @@ func (as *availabilitySet) EnsureBackendPoolDeleted(service *v1.Service, backend
 		}
 
 		vmName := mapNodeNameToVMName(types.NodeName(nodeName))
+		klog.V(3).Infof("EnsureBackendPoolDeleted")
 		nic, vmasID, err := as.getPrimaryInterfaceWithVMSet(vmName, vmSetName)
 		if err != nil {
 			if err == errNotInVMSet {

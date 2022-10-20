@@ -1,3 +1,4 @@
+//go:build !providerless
 // +build !providerless
 
 /*
@@ -331,6 +332,7 @@ func (ss *scaleSet) isNodeManagedByAvailabilitySet(nodeName string, crt azcache.
 
 	cached, err := ss.availabilitySetNodesCache.Get(availabilitySetNodesKey, crt)
 	if err != nil {
+		klog.V(3).Infof("Failed to get node %s from cache: %s", nodeName, err)
 		return false, err
 	}
 

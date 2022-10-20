@@ -1,3 +1,4 @@
+//go:build !providerless
 // +build !providerless
 
 /*
@@ -37,7 +38,8 @@ import (
 )
 
 var (
-	vmCacheTTLDefaultInSeconds           = 60
+	// changed due to https://gitlab.com/volterra/support/technical/-/issues/7086
+	vmCacheTTLDefaultInSeconds           = 600
 	loadBalancerCacheTTLDefaultInSeconds = 120
 	nsgCacheTTLDefaultInSeconds          = 120
 	routeTableCacheTTLDefaultInSeconds   = 120
@@ -61,10 +63,11 @@ func checkResourceExistsFromError(err *retry.Error) (bool, *retry.Error) {
 	return false, err
 }
 
-/// getVirtualMachine calls 'VirtualMachinesClient.Get' with a timed cache
-/// The service side has throttling control that delays responses if there are multiple requests onto certain vm
-/// resource request in short period.
+// / getVirtualMachine calls 'VirtualMachinesClient.Get' with a timed cache
+// / The service side has throttling control that delays responses if there are multiple requests onto certain vm
+// / resource request in short period.
 func (az *Cloud) getVirtualMachine(nodeName types.NodeName, crt azcache.AzureCacheReadType) (vm compute.VirtualMachine, err error) {
+	klog.V(3).Infof("getVirtualMachine %s, type %s", nodeName, crt)
 	vmName := string(nodeName)
 	cachedVM, err := az.vmCache.Get(vmName, crt)
 	if err != nil {
@@ -207,6 +210,7 @@ func (az *Cloud) newVMCache() (*azcache.TimedCache, error) {
 	if az.VMCacheTTLInSeconds == 0 {
 		az.VMCacheTTLInSeconds = vmCacheTTLDefaultInSeconds
 	}
+
 	return azcache.NewTimedcache(time.Duration(az.VMCacheTTLInSeconds)*time.Second, getter)
 }
 

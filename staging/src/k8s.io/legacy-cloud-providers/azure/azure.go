@@ -82,11 +82,11 @@ const (
 	CloudProviderName = "azure"
 	// AzureStackCloudName is the cloud name of Azure Stack
 	AzureStackCloudName    = "AZURESTACKCLOUD"
-	rateLimitQPSDefault    = 1.0
+	rateLimitQPSDefault    = 0.5
 	rateLimitBucketDefault = 5
-	backoffRetriesDefault  = 6
+	backoffRetriesDefault  = 10
 	backoffExponentDefault = 1.5
-	backoffDurationDefault = 5 // in seconds
+	backoffDurationDefault = 10 // in seconds
 	backoffJitterDefault   = 1.0
 	// According to https://docs.microsoft.com/en-us/azure/azure-subscription-service-limits#load-balancer.
 	maximumLoadBalancerRuleCount = 250
@@ -455,12 +455,15 @@ func (az *Cloud) InitializeCloudFromConfig(config *Config, fromSecret bool) erro
 			Factor:   config.CloudProviderBackoffExponent,
 			Duration: time.Duration(config.CloudProviderBackoffDuration) * time.Second,
 			Jitter:   config.CloudProviderBackoffJitter,
+			Cap:      600 * time.Second, // default CAP to 10 minutes
 		}
-		klog.V(2).Infof("Azure cloudprovider using try backoff: retries=%d, exponent=%f, duration=%d, jitter=%f",
+		klog.V(2).Infof("Azure cloudprovider using try backoff: retries=%d, exponent=%f, duration=%d, jitter=%f, cap=%s",
 			config.CloudProviderBackoffRetries,
 			config.CloudProviderBackoffExponent,
 			config.CloudProviderBackoffDuration,
-			config.CloudProviderBackoffJitter)
+			config.CloudProviderBackoffJitter,
+			resourceRequestBackoff.Cap,
+		)
 	} else {
 		// CloudProviderBackoffRetries will be set to 1 by default as the requirements of Azure SDK.
 		config.CloudProviderBackoffRetries = 1
